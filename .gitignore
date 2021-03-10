@@ -13,3 +13,7 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+quote-telegram-bot
+.idea
+.DS_Store

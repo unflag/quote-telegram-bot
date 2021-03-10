@@ -2,6 +2,8 @@
 version: 2.1
 jobs:
   build:
+    context:
+      - DOCKERHUB
     environment:
       IMAGE_NAME: unflag/quote-telegram-bot
     working_directory: ~/repo
@@ -21,5 +23,6 @@ jobs:
           command: docker build -t $IMAGE_NAME:latest .
       - run:
           name: Push docker image
-          command: docker push $IMAGE_NAME:latest
-
+          command: |
+            docker login -u unflag -p $DOCKERHUB_PASSWORD
+            docker push $IMAGE_NAME:latest

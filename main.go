@@ -22,6 +22,7 @@ func init() {
 	debugEnv, _ := strconv.ParseBool(os.Getenv("DEBUG"))
 	flag.StringVar(&botToken, "botToken", os.Getenv("BOT_TOKEN"), "Telegram bot token")
 	flag.BoolVar(&debug, "debug", debugEnv, "Enable debug")
+	flag.Parse()
 }
 
 func main() {

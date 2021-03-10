@@ -10,32 +10,6 @@ import (
 	"github.com/wcharczuk/go-chart/v2"
 )
 
-func createBarChart(name string, data []chart.Value) chart.BarChart {
-	return chart.BarChart{
-		Title:    name,
-		Width:    512,
-		Height:   384,
-		BarWidth: 40,
-		Background: chart.Style{
-			Padding: chart.Box{
-				Top: 40,
-			},
-		},
-		Bars: data,
-	}
-}
-
-func ChartKeyboard(symbol string) *tgbot.InlineKeyboardMarkup {
-	return &tgbot.InlineKeyboardMarkup{
-		InlineKeyboard: [][]tgbot.InlineKeyboardButton{
-			{
-				tgbot.NewInlineKeyboardButtonData("Quarterly", fmt.Sprintf("%s|%s", symbol, "quarterly")),
-				tgbot.NewInlineKeyboardButtonData("Yearly", fmt.Sprintf("%s|%s", symbol, "yearly")),
-			},
-		},
-	}
-}
-
 func (q *Quote) EarningsChart(interval string) ([]byte, error) {
 	earnings := make([]chart.Value, 0, 4)
 
@@ -70,6 +44,32 @@ func (q *Quote) ChartBytes(param string) (tgbot.FileBytes, error) {
 		Name:  "charts.png",
 		Bytes: b,
 	}, nil
+}
+
+func createBarChart(name string, data []chart.Value) chart.BarChart {
+	return chart.BarChart{
+		Title:    name,
+		Width:    512,
+		Height:   384,
+		BarWidth: 40,
+		Background: chart.Style{
+			Padding: chart.Box{
+				Top: 40,
+			},
+		},
+		Bars: data,
+	}
+}
+
+func ChartKeyboard(symbol string) *tgbot.InlineKeyboardMarkup {
+	return &tgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]tgbot.InlineKeyboardButton{
+			{
+				tgbot.NewInlineKeyboardButtonData("Quarterly", fmt.Sprintf("%s|%s", symbol, "quarterly")),
+				tgbot.NewInlineKeyboardButtonData("Yearly", fmt.Sprintf("%s|%s", symbol, "yearly")),
+			},
+		},
+	}
 }
 
 func NewChartUpdateParams(message *tgbot.Message, symbol string) map[string]string {

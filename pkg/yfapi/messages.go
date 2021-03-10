@@ -15,7 +15,7 @@ func (q *Quote) WebsiteButton() tgbot.InlineKeyboardButton {
 }
 
 func (q *Quote) ChartsButton() tgbot.InlineKeyboardButton {
-	if len(q.Earnings.Chart.Yearly) <= 0 && len(q.Earnings.Chart.Quarterly) <= 0 {
+	if len(q.Earnings.Chart.Yearly) == 0 && len(q.Earnings.Chart.Quarterly) == 0 {
 		return tgbot.InlineKeyboardButton{}
 	}
 
@@ -53,9 +53,9 @@ func (q *Quote) StandardMessage() string {
 			"_%s_\n\n"+
 			"```\n"+
 			"MarketCap:      %s\n"+
-			"Beta:           %s\n"+
 			"EV:             %s\n"+
-			"BV(per share):  %s\n\n"+
+			"BV(per share):  %s\n"+
+			"Beta:           %s\n\n"+
 			"EPS:            %s\n"+
 			"P/E:            %s\n"+
 			"P/S:            %s\n"+
@@ -73,9 +73,9 @@ func (q *Quote) StandardMessage() string {
 			q.MarketPrice(),
 			q.SectorIndustry(),
 			q.MarketCap(),
-			q.Beta(),
 			q.EnterpriseValue(),
 			q.BookValuePerShare(),
+			q.Beta(),
 			q.EPS(),
 			q.PToE(),
 			q.PriceToSales(),

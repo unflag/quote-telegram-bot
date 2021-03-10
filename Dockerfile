@@ -4,4 +4,4 @@ MAINTAINER Vyacheslav Mitrofanov <unflag@ymail.com>
 
 COPY quote-telegram-bot /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/quote-telegraf-bot"]
+ENTRYPOINT ["/usr/local/bin/quote-telegram-bot"]

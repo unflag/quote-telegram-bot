@@ -6,6 +6,9 @@ workflows:
       - build :
           context:
             - DOCKERHUB
+          filters:
+            branches:
+              only: master
 jobs:
   build:
     environment:

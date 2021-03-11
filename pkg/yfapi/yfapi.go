@@ -62,7 +62,7 @@ func GetQuote(symbol string) (*Quote, error) {
 	if len(data) == 0 {
 		return nil, &QuoteError{
 			Code:        "Not Found",
-			Description: "Symbol contains of invalid symbols",
+			Description: "Symbol consists of invalid characters",
 		}
 	}
 

@@ -128,14 +128,14 @@ func HelpMessage(lang string) string {
 	case "ru":
 		msg = "Я могу:\n" +
 			"- найти базовые показатели и графики компании или фонда по тикеру(например AAPL или VOO)\n" +
-			"- найти курс обмена валют (например RUB=X для курса USD/RUB, либо USDRUB=X/RUBUSD=X для конкретной пары)\n\n" +
-			"Список бирж и их суффиксов: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n" +
+			"- найти курс обмена валют (например RUB=X для курса USD/RUB, либо USDRUB=X/RUBUSD=X для конкретной пары)\n" +
+			"Список бирж и их суффиксов: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
 			"Напиши мне " + hand
 	default:
 		msg = "I can:\n" +
 			"- find basic financial indicators of arbitrary stock symbol(e.g. AAPL or VOO)\n" +
-			"- find currency exchange ratio (e.g. RUB=X for USD/RUB pair, or USDRUB=X/RUBUSD=X for specific pair)\n\n" +
-			"Exchanges and data providers list: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n" +
+			"- find currency exchange ratio (e.g. RUB=X for USD/RUB pair, or USDRUB=X/RUBUSD=X for specific pair)\n" +
+			"Exchanges and data providers list: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
 			"Write me " + hand
 	}
 

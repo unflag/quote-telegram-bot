@@ -20,7 +20,14 @@ func (q *Quote) ChartsButton() tgbot.InlineKeyboardButton {
 		return tgbot.InlineKeyboardButton{}
 	}
 
-	return tgbot.NewInlineKeyboardButtonData("Charts", fmt.Sprintf("%s|%s", q.Price.Symbol, "charts"))
+	return tgbot.NewInlineKeyboardButtonData("Charts",
+		fmt.Sprintf("%s|%s|%s|%s",
+			q.Price.Symbol,
+			"quarterly",
+			"earnings",
+			"initial",
+		),
+	)
 }
 
 func (q *Quote) StandardMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
@@ -130,13 +137,13 @@ func HelpMessage(lang string) string {
 			"- найти базовые показатели и графики компании или фонда по тикеру(например AAPL или VOO)\n" +
 			"- найти курс обмена валют (например RUB=X для курса USD/RUB, либо USDRUB=X/RUBUSD=X для конкретной пары)\n" +
 			"Список бирж и их суффиксов: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
-			"Напиши мне " + hand
+			"Попробуй отправить мне тикер AAPL" + hand
 	default:
 		msg = "I can:\n" +
 			"- find basic financial indicators of arbitrary stock symbol(e.g. AAPL or VOO)\n" +
 			"- find currency exchange ratio (e.g. RUB=X for USD/RUB pair, or USDRUB=X/RUBUSD=X for specific pair)\n" +
 			"Exchanges and data providers list: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
-			"Write me " + hand
+			"Try to send me symbol AAPL " + hand
 	}
 
 	return msg

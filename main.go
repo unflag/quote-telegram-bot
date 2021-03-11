@@ -3,14 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os"
-	"strconv"
-	"strings"
-
-	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"quote-telegram-bot/pkg/helpers"
 	"quote-telegram-bot/pkg/yfapi"
+	"strconv"
 )
 
 var (
@@ -38,27 +36,27 @@ func main() {
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
-			data := strings.Split(update.CallbackQuery.Data, "|")
-			if len(data) < 2 {
-				continue
-			}
-			symbol, cmd := data[0], data[1]
-
-			quote, err := yfapi.GetQuote(symbol)
+			params, err := yfapi.NewChartParams(update.CallbackQuery.Data)
 			if err != nil {
 				log.Println(err)
 				continue
 			}
 
-			switch cmd {
-			case "charts":
-				chart, err := quote.ChartBytes("quarterly")
+			quote, err := yfapi.GetQuote(params.Symbol)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			switch params.Cmd {
+			case "initial":
+				chart, err := quote.ChartBytes(params)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
 				graph := tgbot.NewPhotoUpload(update.CallbackQuery.Message.Chat.ID, chart)
-				graph.ReplyMarkup = yfapi.ChartKeyboard(symbol)
+				graph.ReplyMarkup = yfapi.ChartKeyboard(params)
 				err = helpers.Retry(3, func() error {
 					if _, err := bot.Send(graph); err != nil {
 						return err
@@ -69,14 +67,14 @@ func main() {
 					log.Println(err)
 				}
 			default:
-				chart, err := quote.ChartBytes(cmd)
+				chart, err := quote.ChartBytes(params)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
-				params := yfapi.NewChartUpdateParams(update.CallbackQuery.Message, symbol)
+				p := yfapi.NewChartUpdateParams(update.CallbackQuery.Message, params)
 				err = helpers.Retry(3, func() error {
-					if _, err = bot.UploadFile("editMessageMedia", params, "charts.png", chart); err != nil {
+					if _, err = bot.UploadFile("editMessageMedia", p, "charts.png", chart); err != nil {
 						return err
 					}
 					return nil

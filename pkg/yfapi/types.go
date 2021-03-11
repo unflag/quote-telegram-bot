@@ -120,6 +120,30 @@ type YearlyFinancialsChart struct {
 	Earnings IndicatorValue `mapstructure:"earnings"`
 }
 
+func (qc *QuarterlyFinancialsChart) Value(measurement string) float64 {
+	var value float64
+	switch measurement {
+	case "earnings":
+		value = qc.Earnings.Raw
+	case "revenue":
+		value = qc.Revenue.Raw
+	}
+
+	return value
+}
+
+func (yc *YearlyFinancialsChart) Value(measurement string) float64 {
+	var value float64
+	switch measurement {
+	case "earnings":
+		value = yc.Earnings.Raw
+	case "revenue":
+		value = yc.Revenue.Raw
+	}
+
+	return value
+}
+
 func (q *Quote) Name() string {
 	return q.Price.Name
 }

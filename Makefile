@@ -9,7 +9,7 @@ LDFLAGS="-X main.Name=${BINARY_NAME} -X main.Version=${VERSION} -X main.Date=${D
 all: linux_amd64
 
 linux_amd64:
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} $(GOBUILD) -ldflags "${LDFLAGS} " -o $(BINARY_NAME)
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} $(GOBUILD) -ldflags ${LDFLAGS} -o $(BINARY_NAME)
 
 darwin_amd64:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=${GOARCH} $(GOBUILD) -ldflags ${LDFLAGS} -o $(BINARY_NAME)

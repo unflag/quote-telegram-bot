@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os"
+	"strconv"
+
+	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"quote-telegram-bot/pkg/helpers"
 	"quote-telegram-bot/pkg/yfapi"
-	"strconv"
 )
 
 var (

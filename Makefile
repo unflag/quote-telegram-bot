@@ -1,9 +1,9 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build
 BINARY_NAME=quote-telegram-bot
-VERSION=`git describe --tags`
+VERSION=v1.0
 DATE=`date +%FT%T%z`
-GOARCH="amd64"
+GOARCH=amd64
 LDFLAGS="-X main.Name=${BINARY_NAME} -X main.Version=${VERSION} -X main.Date=${DATE}"
 
 all: linux_amd64

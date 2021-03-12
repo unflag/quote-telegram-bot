@@ -28,9 +28,11 @@ jobs:
           command: make
       - run:
           name: Build docker image
-          command: docker build -t $IMAGE_NAME:$CIRCLE_TAG .
+          command: docker build -t $IMAGE_NAME:latest .
       - run:
           name: Push docker image
           command: |
             docker login -u unflag -p $DOCKERHUB_PASSWORD
-            docker push $IMAGE_NAME:$CIRCLE_TAG
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:v1.0
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:v1.0

@@ -7,16 +7,20 @@ When communicated, bot answers with basic quote indicators and additionally allo
 * Register your bot instance via [BotFather](https://t.me/botfather)
 * Build quote-telegram-bot:
 ```shell
-$ go mod download; go build -o quote-telegram-bot
+$ make
 ```
 * Run bot with obtained token. Token can be provided via command-line
 ```shell
-$ ./quote-telegram-bot -botToken {YOUR_TOKEN_HERE}
+$ ./quote-telegram-bot -botToken ${YOUR_TOKEN_HERE}
 ```
 or environment variable
 ```shell
-$ BOT_TOKEN={YOUR_TOKEN_HERE} ./quote-telegram-bot
+$ BOT_TOKEN=${YOUR_TOKEN_HERE} ./quote-telegram-bot
 ```
+* Docker container:
+```shell
+$ docker run -d --restart=always -e "BOT_TOKEN=${YOUR_TOKEN_HERE}" unflag/quote-telegram-bot:v1.0
+```  
 * To allow debug logging provide `-debug` flag or `DEBUG=true` env variable
 * Enjoy communicating your bot!
 

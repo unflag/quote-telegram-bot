@@ -20,13 +20,18 @@ func (q *Quote) ChartsButton() tgbot.InlineKeyboardButton {
 		return tgbot.InlineKeyboardButton{}
 	}
 
+	t := "hasNoEarnings"
+	if len(q.Earnings.Chart.Quarterly) > 0 || len(q.Earnings.Chart.Yearly) > 0 {
+		t = "hasEarnings"
+	}
+
 	return tgbot.NewInlineKeyboardButtonData("Charts",
 		fmt.Sprintf("%s|%s|%s|%s|%s",
 			q.Price.Symbol,
 			"1d",
 			"price",
 			"initial",
-			q.Price.Type,
+			t,
 		),
 	)
 }

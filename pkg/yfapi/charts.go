@@ -251,7 +251,7 @@ func ChartKeyboard(p *ChartParams) *tgbot.InlineKeyboardMarkup {
 
 	firstRow := priceButton
 
-	if p.Type == "EQUITY" {
+	if p.Type == "hasEarnings" {
 		firstRow = append(firstRow, earningsButtons...)
 	}
 

@@ -4,7 +4,7 @@ BINARY_NAME=quote-telegram-bot
 VERSION=`git tag`
 DATE=`date +%FT%T%z`
 GOARCH="amd64"
-LDFLAGS="-X main.Name=${BINARY_NAME} -X main.Version=${VERSION:-pipeline.git.tag} -X main.Date=${DATE}"
+LDFLAGS="-X main.Name=${BINARY_NAME} -X main.Version=${VERSION:-$GIT_TAG} -X main.Date=${DATE}"
 
 all: linux_amd64
 

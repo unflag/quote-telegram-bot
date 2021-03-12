@@ -13,23 +13,23 @@ type Quote struct {
 	Earnings     QuoteEarnings
 }
 
-type YFResponse struct {
+type QuoteResponse struct {
 	Data QuoteSummary `json:"quoteSummary"`
 }
 
 type QuoteSummary struct {
 	Data  QuoteData  `json:"result"`
-	Error QuoteError `json:"error"`
+	Error QueryError `json:"error"`
 }
 
 type QuoteData = []map[string]map[string]interface{}
 
-type QuoteError struct {
+type QueryError struct {
 	Code        string `json:"code"`
 	Description string `json:"description"`
 }
 
-func (e *QuoteError) Error() string {
+func (e *QueryError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Code, e.Description)
 }
 

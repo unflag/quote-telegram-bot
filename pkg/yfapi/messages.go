@@ -16,16 +16,17 @@ func (q *Quote) WebsiteButton() tgbot.InlineKeyboardButton {
 }
 
 func (q *Quote) ChartsButton() tgbot.InlineKeyboardButton {
-	if len(q.Earnings.Chart.Yearly) == 0 && len(q.Earnings.Chart.Quarterly) == 0 {
+	if q.Price.MarketPrice.Fmt == "" {
 		return tgbot.InlineKeyboardButton{}
 	}
 
 	return tgbot.NewInlineKeyboardButtonData("Charts",
-		fmt.Sprintf("%s|%s|%s|%s",
+		fmt.Sprintf("%s|%s|%s|%s|%s",
 			q.Price.Symbol,
-			"quarterly",
-			"earnings",
+			"1d",
+			"price",
 			"initial",
+			q.Price.Type,
 		),
 	)
 }

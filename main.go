@@ -14,16 +14,27 @@ import (
 var (
 	botToken string
 	debug    bool
+	version  bool
+
+	Name    string
+	Version string
+	Date    string
 )
 
 func init() {
 	debugEnv, _ := strconv.ParseBool(os.Getenv("DEBUG"))
 	flag.StringVar(&botToken, "botToken", os.Getenv("BOT_TOKEN"), "Telegram bot token")
 	flag.BoolVar(&debug, "debug", debugEnv, "Enable debug")
+	flag.BoolVar(&version, "version", true, "Print version")
 	flag.Parse()
 }
 
 func main() {
+	if version {
+		fmt.Printf("%s %s %s", Name, Version, Date)
+		return
+	}
+
 	bot, err := tgbot.NewBotAPI(botToken)
 	if err != nil {
 		panic(err)
@@ -34,23 +45,39 @@ func main() {
 	updateConfig.Timeout = 30
 	updates := bot.GetUpdatesChan(updateConfig)
 
+	yfc := yfapi.NewYFClient()
+
 	for update := range updates {
+		// update.CallbackQuery used to process buttons and sending back charts
 		if update.CallbackQuery != nil {
+			// generate button press metadata
 			params, err := yfapi.NewChartParams(update.CallbackQuery.Data)
 			if err != nil {
 				log.Println(err)
 				continue
 			}
 
-			quote, err := yfapi.GetQuote(params.Symbol)
+			// price and earnings/revenue charts have different sources and formats, but same interface
+			var data yfapi.Chartable
+			switch params.Measurement {
+			case "price":
+				data, err = yfc.GetChart(params.Symbol, params.Interval)
+			case "earnings", "revenue":
+				data, err = yfc.GetQuote(params.Symbol)
+			default:
+				continue
+			}
+
 			if err != nil {
 				log.Println(err)
 				continue
 			}
 
 			switch params.Cmd {
+			// initial received only once when user press button "Charts" under quote info message.
+			// Price chart sent on this event.
 			case "initial":
-				chart, err := quote.ChartBytes(params)
+				chart, err := data.ChartBytes(params)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -67,12 +94,13 @@ func main() {
 					log.Println(err)
 				}
 			default:
-				chart, err := quote.ChartBytes(params)
+				// any chart updates are processing here
+				chart, err := data.ChartBytes(params)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
-				p := yfapi.NewChartUpdateParams(update.CallbackQuery.Message, params)
+				p := yfapi.NewMediaUpdateParams(update.CallbackQuery.Message, params)
 				err = helpers.Retry(3, func() error {
 					if _, err = bot.UploadFile("editMessageMedia", p, "charts.png", chart); err != nil {
 						return err
@@ -91,16 +119,19 @@ func main() {
 		msg.ParseMode = tgbot.ModeMarkdown
 		msg.DisableWebPagePreview = true
 
+		// text messages from user are processing here
 		switch update.Message.IsCommand() {
+		// bot has no user commands, so any command causes help message send
 		case true:
 			msg.Text = yfapi.HelpMessage(update.Message.From.LanguageCode)
+		// any text messages are processing here
 		default:
 			text := helpers.Sanitize(update.Message.Text)
-			quote, err := yfapi.GetQuote(text)
+			quote, err := yfc.GetQuote(text)
 			if err != nil {
 				msg.Text = fmt.Sprintf("Unable to get data for symbol: %s", text)
 				log.Println(err)
-				if qerr, ok := err.(*yfapi.QuoteError); ok {
+				if qerr, ok := err.(*yfapi.QueryError); ok {
 					msg.Text = qerr.Error()
 				}
 			} else {

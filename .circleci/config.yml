@@ -13,6 +13,7 @@ jobs:
   build:
     environment:
       IMAGE_NAME: unflag/quote-telegram-bot
+      GIT_TAG: << pipeline.git.tag >>
     working_directory: ~/repo
     docker:
       - image: circleci/golang:1.16.0
@@ -27,9 +28,9 @@ jobs:
           command: make
       - run:
           name: Build docker image
-          command: docker build -t $IMAGE_NAME:latest .
+          command: docker build -t $IMAGE_NAME:$GIT_TAG .
       - run:
           name: Push docker image
           command: |
             docker login -u unflag -p $DOCKERHUB_PASSWORD
-            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$GIT_TAG

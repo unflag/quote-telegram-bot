@@ -19,7 +19,7 @@ $ BOT_TOKEN=${YOUR_TOKEN_HERE} ./quote-telegram-bot
 ```
 * Docker container:
 ```shell
-$ docker run -d --restart=always -e "BOT_TOKEN=${YOUR_TOKEN_HERE}" unflag/quote-telegram-bot:v1.0
+$ docker run -d --restart=always -e "BOT_TOKEN=${YOUR_TOKEN_HERE}" unflag/quote-telegram-bot:latest
 ```  
 * To allow debug logging provide `-debug` flag or `DEBUG=true` env variable
 * Enjoy communicating your bot!

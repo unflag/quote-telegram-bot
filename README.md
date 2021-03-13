@@ -30,6 +30,6 @@ $ docker run -d --restart=always -e "BOT_TOKEN=${YOUR_TOKEN_HERE}" unflag/quote-
   [markets](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html), 
   so you must add a specific suffix, if your stock is trading on some of these markets.
   For example - `YNDX.ME` for Yandex shares that are traded on the Moscow Exchange.
-* Currency exchange rates could be queried using `RUB=X` or `CNY=X` syntax for exchange rates of USD/RUB and USD/CNY respectively,
+* Currency exchange rates can be queried using `RUB=X` or `CNY=X` syntax for exchange rates of USD/RUB and USD/CNY respectively,
   or `RUBUSD=X`/`CNYUSD=X` syntax for a specific pair.
 * Letter case does not matter.

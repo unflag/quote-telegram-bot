@@ -47,8 +47,9 @@ func (r *ResultSet) SearchMessage() string {
 }
 
 func (r *ResultSet) SearchMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
+	rows := make([][]tgbot.InlineKeyboardButton, 0, len(r.Result)/4)
 	buttons := make([]tgbot.InlineKeyboardButton, 0, len(r.Result))
-	for _, res := range r.Result {
+	for i, res := range r.Result {
 		if _, ok := searchTypes[res.Type]; ok {
 			buttons = append(buttons,
 				tgbot.NewInlineKeyboardButtonData(
@@ -57,9 +58,13 @@ func (r *ResultSet) SearchMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
 				),
 			)
 		}
+		if len(buttons) == 4 || i == len(r.Result)-1 {
+			rows = append(rows, buttons)
+			buttons = make([]tgbot.InlineKeyboardButton, 0, len(r.Result))
+		}
 	}
 
 	return &tgbot.InlineKeyboardMarkup{
-		InlineKeyboard: [][]tgbot.InlineKeyboardButton{buttons},
+		InlineKeyboard: rows,
 	}
 }

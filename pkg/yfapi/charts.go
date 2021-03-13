@@ -30,10 +30,11 @@ type ChartSummary struct {
 type ChartData = []map[string]interface{}
 
 type ChartMeta struct {
-	Currency        string `mapstructure:"currency"`
-	Symbol          string `mapstructure:"symbol"`
-	DataGranularity string `mapstructure:"dataGranularity"`
-	Range           string `mapstructure:"range"`
+	Currency        string   `mapstructure:"currency"`
+	Symbol          string   `mapstructure:"symbol"`
+	DataGranularity string   `mapstructure:"dataGranularity"`
+	Range           string   `mapstructure:"range"`
+	ValidIntervals  []string `mapstructure:"validRanges"`
 }
 
 type ChartIndicators struct {
@@ -58,6 +59,7 @@ type ChartParams struct {
 
 type Chartable interface {
 	ChartBytes(p *ChartParams) (tgbot.FileBytes, error)
+	Intervals() []string
 }
 
 func NewChartParams(callbackData string) (*ChartParams, error) {
@@ -76,14 +78,14 @@ func NewChartParams(callbackData string) (*ChartParams, error) {
 	}, nil
 }
 
-func NewMediaUpdateParams(message *tgbot.Message, p *ChartParams) map[string]string {
+func NewMediaUpdateParams(message *tgbot.Message, p *ChartParams, i []string) map[string]string {
 	media := struct {
 		Type  string `json:"type"`
 		Media string `json:"media"`
 	}{Type: "photo", Media: "attach://charts.png"}
 
 	mediaJSON, _ := json.Marshal(media)
-	kbJSON, _ := json.Marshal(ChartKeyboard(p))
+	kbJSON, _ := json.Marshal(ChartKeyboard(p, i))
 
 	updateParams := map[string]string{
 		"chat_id":      strconv.FormatInt(message.Chat.ID, 10),
@@ -93,6 +95,17 @@ func NewMediaUpdateParams(message *tgbot.Message, p *ChartParams) map[string]str
 	}
 
 	return updateParams
+}
+
+func (c *Chart) Intervals() []string {
+	intervals := make([]string, 0, len(c.Meta.ValidIntervals))
+	for _, interval := range c.Meta.ValidIntervals {
+		if _, ok := priceIntervals[interval]; ok {
+			intervals = append(intervals, interval)
+		}
+	}
+
+	return intervals
 }
 
 func (q *Quote) ChartBytes(p *ChartParams) (tgbot.FileBytes, error) {
@@ -142,6 +155,21 @@ func (q *Quote) earningsChart(p *ChartParams) ([]byte, error) {
 	}
 
 	return buffer.Bytes(), nil
+}
+
+func createBarChart(name string, data []chart.Value) chart.BarChart {
+	return chart.BarChart{
+		Title:    name,
+		Width:    512,
+		Height:   384,
+		BarWidth: 40,
+		Background: chart.Style{
+			Padding: chart.Box{
+				Top: 40,
+			},
+		},
+		Bars: data,
+	}
 }
 
 func (c *Chart) priceChart(p *ChartParams) ([]byte, error) {
@@ -200,23 +228,8 @@ func createTSChart(name string, x []time.Time, y []float64) chart.Chart {
 
 }
 
-func createBarChart(name string, data []chart.Value) chart.BarChart {
-	return chart.BarChart{
-		Title:    name,
-		Width:    512,
-		Height:   384,
-		BarWidth: 40,
-		Background: chart.Style{
-			Padding: chart.Box{
-				Top: 40,
-			},
-		},
-		Bars: data,
-	}
-}
-
-func ChartKeyboard(p *ChartParams) *tgbot.InlineKeyboardMarkup {
-	priceButton := []tgbot.InlineKeyboardButton{
+func ChartKeyboard(p *ChartParams, i []string) *tgbot.InlineKeyboardMarkup {
+	firstRow := []tgbot.InlineKeyboardButton{
 		tgbot.NewInlineKeyboardButtonData("Price",
 			fmt.Sprintf("%s|%s|%s|%s|%s",
 				p.Symbol,
@@ -226,9 +239,6 @@ func ChartKeyboard(p *ChartParams) *tgbot.InlineKeyboardMarkup {
 				p.Type,
 			),
 		),
-	}
-
-	earningsButtons := []tgbot.InlineKeyboardButton{
 		tgbot.NewInlineKeyboardButtonData("Earnings",
 			fmt.Sprintf("%s|%s|%s|%s|%s",
 				p.Symbol,
@@ -249,94 +259,38 @@ func ChartKeyboard(p *ChartParams) *tgbot.InlineKeyboardMarkup {
 		),
 	}
 
-	firstRow := priceButton
-
+	kb := make([][]tgbot.InlineKeyboardButton, 0, 2)
 	if p.Type == "hasEarnings" {
-		firstRow = append(firstRow, earningsButtons...)
+		kb = append(kb, firstRow)
 	}
 
-	secondRow := chartKeyboardSecondRow(p)
+	kb = append(kb, chartKeyboardSecondRow(p, i))
 
 	return &tgbot.InlineKeyboardMarkup{
-		InlineKeyboard: [][]tgbot.InlineKeyboardButton{
-			firstRow,
-			secondRow,
-		},
+		InlineKeyboard: kb,
 	}
 }
 
-func chartKeyboardSecondRow(p *ChartParams) []tgbot.InlineKeyboardButton {
-	var row []tgbot.InlineKeyboardButton
-	switch p.Measurement {
-	case "price":
-		row = []tgbot.InlineKeyboardButton{
-			tgbot.NewInlineKeyboardButtonData("1d",
+func chartKeyboardSecondRow(p *ChartParams, intervals []string) []tgbot.InlineKeyboardButton {
+	row := make([]tgbot.InlineKeyboardButton, 0, len(intervals))
+
+	for _, interval := range intervals {
+		row = append(row,
+			tgbot.NewInlineKeyboardButtonData(
+				interval,
 				fmt.Sprintf("%s|%s|%s|%s|%s",
 					p.Symbol,
-					"1d",
+					interval,
 					p.Measurement,
 					"update",
 					p.Type,
 				),
 			),
-			tgbot.NewInlineKeyboardButtonData("1mo",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"1mo",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-			tgbot.NewInlineKeyboardButtonData("3mo",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"3mo",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-			tgbot.NewInlineKeyboardButtonData("6mo",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"6mo",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-			tgbot.NewInlineKeyboardButtonData("1y",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"1y",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-		}
-	case "earnings", "revenue":
-		row = []tgbot.InlineKeyboardButton{
-			tgbot.NewInlineKeyboardButtonData("Quarterly",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"quarterly",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-			tgbot.NewInlineKeyboardButtonData("Yearly",
-				fmt.Sprintf("%s|%s|%s|%s|%s",
-					p.Symbol,
-					"yearly",
-					p.Measurement,
-					"update",
-					p.Type,
-				),
-			),
-		}
+		)
+	}
+
+	if len(row) <= 1 {
+		return []tgbot.InlineKeyboardButton{}
 	}
 
 	return row

@@ -357,3 +357,7 @@ func (q *Quote) Category() string {
 
 	return q.Statistics.Category
 }
+
+func (q *Quote) Intervals() []string {
+	return []string{"quarterly", "yearly"}
+}

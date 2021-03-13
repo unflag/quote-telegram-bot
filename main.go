@@ -62,7 +62,7 @@ func main() {
 			var data yfapi.Chartable
 			switch params.Measurement {
 			case "price":
-				data, err = yfc.GetChart(params.Symbol, params.Interval)
+				data, err = yfc.GetPriceChart(params.Symbol, params.Interval)
 			case "earnings", "revenue":
 				data, err = yfc.GetQuote(params.Symbol)
 			default:
@@ -84,7 +84,7 @@ func main() {
 					continue
 				}
 				graph := tgbot.NewPhotoUpload(update.CallbackQuery.Message.Chat.ID, chart)
-				graph.ReplyMarkup = yfapi.ChartKeyboard(params)
+				graph.ReplyMarkup = yfapi.ChartKeyboard(params, data.Intervals())
 				err = helpers.Retry(3, func() error {
 					if _, err := bot.Send(graph); err != nil {
 						return err
@@ -101,7 +101,7 @@ func main() {
 					log.Println(err)
 					continue
 				}
-				p := yfapi.NewMediaUpdateParams(update.CallbackQuery.Message, params)
+				p := yfapi.NewMediaUpdateParams(update.CallbackQuery.Message, params, data.Intervals())
 				err = helpers.Retry(3, func() error {
 					if _, err = bot.UploadFile("editMessageMedia", p, "charts.png", chart); err != nil {
 						return err

@@ -9,6 +9,19 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+var (
+	priceIntervals = map[string]string{
+		"1d":  "1h",
+		"5d":  "1h",
+		"1mo": "1d",
+		"3mo": "1d",
+		"6mo": "5d",
+		"1y":  "5d",
+	}
+
+	defaultPeriod = "1d"
+)
+
 const (
 	quotesApiVersion           = "v11"
 	assetProfileModule         = "assetProfile"
@@ -115,22 +128,11 @@ func (c *YFClient) GetQuote(symbol string) (*Quote, error) {
 	return &quote, nil
 }
 
-func (c *YFClient) getChartResponse(symbol string, period string) (ChartData, error) {
-	var interval string
-	switch period {
-	case "1d":
-		interval = "1h"
-	case "1mo":
-		interval = "1d"
-	case "3mo":
-		interval = "5d"
-	case "6mo":
-		interval = "5d"
-	case "1y":
-		interval = "1mo"
-	default:
-		period = "1d"
-		interval = "1h"
+func (c *YFClient) getPriceChartResponse(symbol string, period string) (ChartData, error) {
+	interval, ok := priceIntervals[period]
+	if !ok {
+		period = defaultPeriod
+		interval = priceIntervals[period]
 	}
 
 	url := fmt.Sprintf("https://query1.finance.yahoo.com/%s/finance/chart/%s?period1=0&period2=9999999999&interval=%s&range=%s",
@@ -158,8 +160,8 @@ func (c *YFClient) getChartResponse(symbol string, period string) (ChartData, er
 	return parsedResp.Data.Data, nil
 }
 
-func (c *YFClient) GetChart(symbol string, period string) (*Chart, error) {
-	data, err := c.getChartResponse(symbol, period)
+func (c *YFClient) GetPriceChart(symbol string, period string) (*Chart, error) {
+	data, err := c.getPriceChartResponse(symbol, period)
 	if err != nil {
 		return nil, err
 	}

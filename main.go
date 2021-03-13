@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"quote-telegram-bot/pkg/helpers"
@@ -49,9 +50,26 @@ func main() {
 	yfc := yfapi.NewYFClient()
 
 	for update := range updates {
-		// update.CallbackQuery used to process buttons and sending back charts
+		msg := CreateMessage(&update)
+
+		// update.CallbackQuery used to process button presses
 		if update.CallbackQuery != nil {
-			// generate button press metadata
+			// process search result button press
+			if len(strings.Split(update.CallbackQuery.Data, "|")) == 1 {
+				QueryQuote(yfc, update.CallbackQuery.Data, msg)
+				err := helpers.Retry(3, func() error {
+					if _, err := bot.Send(msg); err != nil {
+						return err
+					}
+					return nil
+				})
+				if err != nil {
+					log.Println(err)
+				}
+				continue
+			}
+
+			// generate chart button press metadata
 			params, err := yfapi.NewChartParams(update.CallbackQuery.Data)
 			if err != nil {
 				log.Println(err)
@@ -116,32 +134,23 @@ func main() {
 			continue
 		}
 
-		msg := tgbot.NewMessage(update.Message.Chat.ID, "")
-		msg.ParseMode = tgbot.ModeMarkdown
-		msg.DisableWebPagePreview = true
-
-		// text messages from user are processing here
-		switch update.Message.IsCommand() {
-		// bot has no user commands, so any command causes help message send
-		case true:
+		// text messages and commands from user are processing here
+		switch s := update.Message.Command(); s {
+		case "start", "help":
 			msg.Text = yfapi.HelpMessage(update.Message.From.LanguageCode)
 		// any text messages are processing here
+		case "":
+			QueryQuote(yfc, update.Message.Text, msg)
 		default:
-			text := helpers.Sanitize(update.Message.Text)
-			quote, err := yfc.GetQuote(text)
-			if err != nil {
-				msg.Text = fmt.Sprintf("Unable to get data for symbol: %s", text)
-				log.Println(err)
-				if qerr, ok := err.(*yfapi.QueryError); ok {
-					msg.Text = qerr.Error()
-				}
-			} else {
-				msg.Text = quote.StandardMessage()
-				msg.ReplyMarkup = quote.StandardMessageInlineKeyboard()
+			if update.Message.Text != "" && s != update.Message.Text {
+				s = update.Message.Text
 			}
-
-			if msg.Text == "" {
-				msg.Text = fmt.Sprintf("No data found for symbol: %s", text)
+			result, err := yfc.Search(s)
+			if err != nil {
+				msg.Text = fmt.Sprintf("Unable to find: %s", s)
+			} else {
+				msg.Text = result.SearchMessage()
+				msg.ReplyMarkup = result.SearchMessageInlineKeyboard()
 			}
 		}
 
@@ -154,5 +163,37 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
+	}
+}
+
+func CreateMessage(update *tgbot.Update) *tgbot.MessageConfig {
+	var msg tgbot.MessageConfig
+	if update.CallbackQuery != nil {
+		msg = tgbot.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
+	} else {
+		msg = tgbot.NewMessage(update.Message.Chat.ID, "")
+	}
+
+	msg.ParseMode = tgbot.ModeMarkdown
+	msg.DisableWebPagePreview = true
+
+	return &msg
+}
+
+func QueryQuote(yfc *yfapi.YFClient, symbol string, msg *tgbot.MessageConfig) {
+	quote, err := yfc.GetQuote(symbol)
+	if err != nil {
+		msg.Text = fmt.Sprintf("Unable to get data for symbol: %s", symbol)
+		log.Println(err)
+		if qerr, ok := err.(*yfapi.QueryError); ok {
+			msg.Text = qerr.Error()
+		}
+	} else {
+		msg.Text = quote.StandardMessage()
+		msg.ReplyMarkup = quote.StandardMessageInlineKeyboard()
+	}
+
+	if msg.Text == "" {
+		msg.Text = fmt.Sprintf("No data found for symbol: %s", symbol)
 	}
 }

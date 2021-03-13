@@ -61,10 +61,10 @@ func (q *Quote) StandardMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
 
 func (q *Quote) StandardMessage() string {
 	var msg string
-	switch q.Price.Type {
+	switch q.Type() {
 	case "EQUITY":
-		msg = fmt.Sprintf("*%s (%s) %s*\n"+
-			"_%s_\n\n"+
+		msg = fmt.Sprintf("*%s (%s:%s) %s*\n"+
+			"_%s %s_\n\n"+
 			"```\n"+
 			"MarketCap:      %s\n"+
 			"EV:             %s\n"+
@@ -84,8 +84,10 @@ func (q *Quote) StandardMessage() string {
 			"```",
 			q.Name(),
 			q.Symbol(),
+			q.Exchange(),
 			q.MarketPrice(),
 			q.SectorIndustry(),
+			q.Type(),
 			q.MarketCap(),
 			q.EnterpriseValue(),
 			q.BookValuePerShare(),
@@ -103,8 +105,8 @@ func (q *Quote) StandardMessage() string {
 			q.FCF(),
 		)
 	case "ETF":
-		msg = fmt.Sprintf("*%s (%s) %s*\n"+
-			"_%s_\n\n"+
+		msg = fmt.Sprintf("*%s (%s:%s) %s*\n"+
+			"_%s %s_\n\n"+
 			"```\n"+
 			"Beta(3Y):        %s\n"+
 			"Assets:          %s\n"+
@@ -115,8 +117,10 @@ func (q *Quote) StandardMessage() string {
 			"```",
 			q.Name(),
 			q.Symbol(),
+			q.Exchange(),
 			q.MarketPrice(),
 			q.Category(),
+			q.Type(),
 			q.Beta(),
 			q.Assets(),
 			q.ExpenseRatio(),
@@ -140,16 +144,18 @@ func HelpMessage(lang string) string {
 	switch lang {
 	case "ru":
 		msg = "Я могу:\n" +
+			"- найти тикер по названию компании(используя команду вида /name)\n" +
 			"- найти базовые показатели и графики компании или фонда по тикеру(например AAPL или VOO)\n" +
 			"- найти курс обмена валют (например RUB=X для курса USD/RUB, либо USDRUB=X/RUBUSD=X для конкретной пары)\n" +
 			"Список бирж и их суффиксов: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
-			"Попробуй отправить мне тикер AAPL" + hand
+			"Попробуй отправить мне тикер AAPL или команду для поиска /tesla" + hand
 	default:
 		msg = "I can:\n" +
+			"- find stock symbol by company name(using command like /name)" +
 			"- find basic financial indicators of arbitrary stock symbol(e.g. AAPL or VOO)\n" +
 			"- find currency exchange ratio (e.g. RUB=X for USD/RUB pair, or USDRUB=X/RUBUSD=X for specific pair)\n" +
 			"Exchanges and data providers list: [yahoo finance knowledge base](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html)\n\n" +
-			"Try to send me symbol AAPL " + hand
+			"Try to send me symbol AAPL or search command /tesla" + hand
 	}
 
 	return msg

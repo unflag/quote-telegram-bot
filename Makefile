@@ -1,7 +1,7 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build
 BINARY_NAME=quote-telegram-bot
-VERSION=v1.0
+VERSION=v1.1
 DATE=`date +%FT%T%z`
 GOARCH=amd64
 LDFLAGS="-X main.Name=${BINARY_NAME} -X main.Version=${VERSION} -X main.Date=${DATE}"

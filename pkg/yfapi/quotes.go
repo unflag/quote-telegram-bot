@@ -358,6 +358,22 @@ func (q *Quote) Category() string {
 	return q.Statistics.Category
 }
 
+func (q *Quote) Exchange() string {
+	if q.Price.Exchange == "" {
+		return "Unknown exchange"
+	}
+
+	return q.Price.Exchange
+}
+
+func (q *Quote) Type() string {
+	if q.Price.Type == "" {
+		return "Unknown type"
+	}
+
+	return q.Price.Type
+}
+
 func (q *Quote) Intervals() []string {
 	return []string{"quarterly", "yearly"}
 }

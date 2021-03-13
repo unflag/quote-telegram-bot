@@ -65,8 +65,8 @@ type Chartable interface {
 func NewChartParams(callbackData string) (*ChartParams, error) {
 	data := strings.Split(callbackData, "|")
 	minLen := 5
-	if len(data) < minLen {
-		return nil, fmt.Errorf("provided data is too short(%d < %d): %s", len(data), minLen, callbackData)
+	if len(data) != minLen {
+		return nil, fmt.Errorf("provided data has invalid size(%d != %d): %s", len(data), minLen, callbackData)
 	}
 
 	return &ChartParams{

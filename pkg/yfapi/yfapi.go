@@ -3,6 +3,7 @@ package yfapi
 import (
 	"encoding/json"
 	"fmt"
+	"quote-telegram-bot/pkg/helpers"
 	"time"
 
 	http "github.com/hashicorp/go-retryablehttp"
@@ -83,7 +84,7 @@ func (c *YFClient) getQuoteResponse(symbol string) (QuoteData, error) {
 }
 
 func (c *YFClient) GetQuote(symbol string) (*Quote, error) {
-	data, err := c.getQuoteResponse(symbol)
+	data, err := c.getQuoteResponse(helpers.Sanitize(symbol))
 	if err != nil {
 		return nil, err
 	}
@@ -185,4 +186,21 @@ func (c *YFClient) GetPriceChart(symbol string, period string) (*Chart, error) {
 	}
 
 	return &chart, nil
+}
+
+func (c *YFClient) Search(text string) (*ResultSet, error) {
+	url := fmt.Sprintf("https://autoc.finance.yahoo.com/autoc?query=%s&lang=eng", helpers.Sanitize(text))
+
+	resp, err := c.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	parsedResp := &SearchResponse{}
+	if err = json.NewDecoder(resp.Body).Decode(parsedResp); err != nil {
+		return nil, err
+	}
+
+	return &parsedResp.Data, nil
 }

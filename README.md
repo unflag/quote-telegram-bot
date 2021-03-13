@@ -26,7 +26,7 @@ $ docker run -d --restart=always -e "BOT_TOKEN=${YOUR_TOKEN_HERE}" unflag/quote-
 
 ## What to ask
 * Search symbol names by its company name using commands like `/apple` or `/tesla`.
-* Ыуфкср аштфтсшфд штащ ин stock or ETF symbols like `AAPL` or `VOO`. Yahoo Finance supports variety of 
+* Search financial info by stock or ETF symbols like `AAPL` or `VOO`. Yahoo Finance supports variety of 
   [markets](https://help.yahoo.com/kb/exchanges-data-providers-yahoo-finance-sln2310.html), 
   so you must add a specific suffix, if your stock is trading on some of these markets.
   For example - `YNDX.ME` for Yandex shares that are traded on the Moscow Exchange.

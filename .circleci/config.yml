@@ -3,7 +3,7 @@ version: 2.1
 workflows:
   my-workflow:
     jobs:
-      - lint
+      - lint:
           filters:
             branches:
               ignore: /.*/

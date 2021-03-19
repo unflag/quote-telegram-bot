@@ -21,7 +21,7 @@ jobs:
     docker:
       - image: circleci/golang:1.16.0
     steps:
-      - checkout
+      - checkout:
           post:
             - git fetch --tags && git tag
       - setup_remote_docker

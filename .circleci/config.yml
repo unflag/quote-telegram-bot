@@ -4,6 +4,11 @@ workflows:
   my-workflow:
     jobs:
       - lint
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]$/
       - build :
           context:
             - DOCKERHUB

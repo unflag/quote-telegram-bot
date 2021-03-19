@@ -3,6 +3,7 @@ version: 2.1
 workflows:
   my-workflow:
     jobs:
+      - lint
       - build :
           context:
             - DOCKERHUB
@@ -13,6 +14,13 @@ workflows:
               only: /^v[0-9]+\.[0-9]$/
 
 jobs:
+  lint:
+    docker:
+      - image: golangci/golangci-lint:v1.38-alpine
+    steps:
+      - checkout
+      - run: golangci-lint run
+
   build:
     environment:
       IMAGE_NAME: unflag/quote-telegram-bot

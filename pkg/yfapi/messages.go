@@ -128,7 +128,7 @@ func (q *Quote) StandardMessage() string {
 			q.Return("3Y"),
 			q.Return("5Y"),
 		)
-	case "CURRENCY":
+	case "CURRENCY", "CRYPTOCURRENCY":
 		msg = fmt.Sprintf("*%s %s*\n",
 			q.Name(),
 			q.MarketPrice(),

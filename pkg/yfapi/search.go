@@ -1,37 +1,30 @@
 package yfapi
 
 import (
-	"fmt"
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var (
 	searchTypes = map[string]struct{}{
-		"S": {},
-		"E": {},
-		"C": {},
+		"EQUITY":         {},
+		"ETF":            {},
+		"CURRENCY":       {},
+		"CRYPTOCURRENCY": {},
 	}
 )
 
 type SearchResponse struct {
-	Data ResultSet `json:"ResultSet"`
-}
-
-type ResultSet struct {
-	Query  string         `json:"Query"`
-	Result []SearchResult `json:"Result"`
+	Result []SearchResult `json:"quotes"`
 }
 
 type SearchResult struct {
-	Symbol   string
-	Name     string `json:"name"`
-	Exch     string `json:"exch"`
-	Type     string `json:"type"`
-	ExchDisp string `json:"exchDisp"`
-	TypeDisp string `json:"typeDisp"`
+	Symbol   string `json:"symbol"`
+	Name     string `json:"shortname"`
+	Exchange string `json:"exchange"`
+	Type     string `json:"quoteType"`
 }
 
-func (r *ResultSet) SearchMessage() string {
+func (r *SearchResponse) SearchMessage() string {
 	validResultLen := 0
 	for _, res := range r.Result {
 		if _, ok := searchTypes[res.Type]; ok {
@@ -40,13 +33,13 @@ func (r *ResultSet) SearchMessage() string {
 	}
 
 	if validResultLen == 0 {
-		return fmt.Sprintf("Not Found: Quote not found for search message: %s", r.Query)
+		return "Quote not found"
 	}
 
-	return fmt.Sprintf("Search result for: %s", r.Query)
+	return "Search result:"
 }
 
-func (r *ResultSet) SearchMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
+func (r *SearchResponse) SearchMessageInlineKeyboard() *tgbot.InlineKeyboardMarkup {
 	rows := make([][]tgbot.InlineKeyboardButton, 0, len(r.Result)/4)
 	buttons := make([]tgbot.InlineKeyboardButton, 0, len(r.Result))
 	for i, res := range r.Result {

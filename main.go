@@ -50,6 +50,11 @@ func main() {
 	yfc := yfapi.NewYFClient()
 
 	for update := range updates {
+		// skip edited messages events
+		if update.EditedMessage != nil {
+			continue
+		}
+
 		msg := CreateMessage(&update)
 
 		// update.CallbackQuery used to process button presses
@@ -169,8 +174,10 @@ func main() {
 func CreateMessage(update *tgbot.Update) *tgbot.MessageConfig {
 	var msg tgbot.MessageConfig
 	if update.CallbackQuery != nil {
+		fmt.Printf("%+v", update.CallbackQuery)
 		msg = tgbot.NewMessage(update.CallbackQuery.Message.Chat.ID, "")
-	} else {
+	} else if update.Message != nil {
+		fmt.Printf("%+v", update.Message)
 		msg = tgbot.NewMessage(update.Message.Chat.ID, "")
 	}
 

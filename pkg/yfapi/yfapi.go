@@ -188,8 +188,24 @@ func (c *YFClient) GetPriceChart(symbol string, period string) (*Chart, error) {
 	return &chart, nil
 }
 
-func (c *YFClient) Search(text string) (*ResultSet, error) {
-	url := fmt.Sprintf("https://autoc.finance.yahoo.com/autoc?query=%s&lang=eng", helpers.Sanitize(text))
+func (c *YFClient) Search(text string) (*SearchResponse, error) {
+	url := fmt.Sprintf(
+		"https://query1.finance.yahoo.com/v1/finance/search?q=%s"+
+			"&lang=en-US"+
+			"&region=US"+
+			"&quotesCount=12"+
+			"&newsCount=0"+
+			"&listsCount=0"+
+			"&enableFuzzyQuery=false"+
+			"&quotesQueryId=tss_match_phrase_query"+
+			"&multiQuoteQueryId=multi_quote_single_token_query"+
+			"&newsQueryId=news_cie_vespa"+
+			"&enableCb=false"+
+			"&enableNavLinks=false"+
+			"&enableEnhancedTrivialQuery=false"+
+			"&enableResearchReports=false",
+		helpers.Sanitize(text),
+	)
 
 	resp, err := c.Get(url)
 	if err != nil {
@@ -202,5 +218,5 @@ func (c *YFClient) Search(text string) (*ResultSet, error) {
 		return nil, err
 	}
 
-	return &parsedResp.Data, nil
+	return parsedResp, nil
 }
